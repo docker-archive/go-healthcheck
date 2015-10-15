@@ -1,6 +1,6 @@
 # go-healthcheck
 
-Go Healthcheck provides a generic health checking framework. The go-healthcheck package works expvar style. By importing the package the debug server is getting a `/debug/health` endpoint that returns the current status of the application. If there are no errors, `/debug/health` will return a HTTP 200 status, together with an empty JSON reply `{}`. If there are any checks with errors, the JSON reply will include all the failed checks, and the response will be have a HTTP 500 status.
+Go Healthcheck provides a generic health checking framework. The health package works expvar style. By importing the package the debug server is getting a `/debug/health` endpoint that returns the current status of the application. If there are no errors, `/debug/health` will return a HTTP 200 status, together with an empty JSON reply `{}`. If there are any checks with errors, the JSON reply will include all the failed checks, and the response will be have a HTTP 500 status.
 
 A Check can either be run synchronously, or asynchronously. We recommend that most checks are registered as an asynchronous check, so a call to the `/debug/health` endpoint always returns
 immediately. This pattern is particularly useful for checks that verify upstream connectivity or database status, since they might take a long time to return/timeout.
@@ -9,11 +9,11 @@ immediately. This pattern is particularly useful for checks that verify upstream
 
 To install go-healthcheck, just import it in your application:
 
-`import "github.com/docker/go-healthcheck"`
+`import "github.com/docker/go-healthcheck/health"`
 
-You can also (optionally) import `github.com/docker/go-healthcheck/api` that will add two convenience endpoints: `/debug/health/down` and `/debug/health/up`. These endpoints add "manual" checks that allow the service to quickly be brought in/out of rotation.
+You can also (optionally) import `health/api` that will add two convenience endpoints: `/debug/health/down` and `/debug/health/up`. These endpoints add "manual" checks that allow the service to quickly be brought in/out of rotation.
 
-`import _ "github.com/docker/go-healthcheck/api"`
+`import _ "github.com/docker/go-healthcheck/health/api"`
 
 ```bash
 # curl localhost:5001/debug/health
