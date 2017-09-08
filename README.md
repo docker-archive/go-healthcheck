@@ -70,7 +70,7 @@ Another way of registering a check could be by using an anonymous function and t
 
 You could also use the health checker mechanism to ensure your application only comes up if certain conditions are met, or to allow the developer to take the service out of rotation immediately. An example that checks database connectivity and immediately takes the server out of rotation on err:
 
-````go
+```go
  updater = health.NewStatusUpdater()
   health.RegisterFunc("database_check", func() error {
    return updater.Check()
@@ -80,7 +80,7 @@ You could also use the health checker mechanism to ensure your application only 
  if err != nil {
    updater.Update(errors.New("Error connecting to the database: " + err.Error()))
  }
-```
+ ```
 
 You can also use the predefined Checkers that come included with the health package. First, import the checks:
 
