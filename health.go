@@ -32,6 +32,17 @@ func NewRegistry() *Registry {
 // the registry used by the HTTP handler.
 var DefaultRegistry *Registry
 
+// stringError defines a constant error as per https://dave.cheney.net/2016/04/07/constant-errors
+type stringError string
+
+// Initial check status to be used before a background check has been completed
+const initialStatus = stringError("not yet checked")
+
+// Error returns the error message, allowing stringError to be treated as an error
+func (e stringError) Error() string {
+	return string(e)
+}
+
 // Checker is the interface for a Health Checker
 type Checker interface {
 	// Check returns nil if the service is okay.
@@ -84,7 +95,7 @@ func (u *updater) Update(status error) {
 
 // NewStatusUpdater returns a new updater
 func NewStatusUpdater() Updater {
-	return &updater{}
+	return &updater{status: initialStatus}
 }
 
 // thresholdUpdater implements Checker and Updater, providing an asynchronous Update
@@ -127,7 +138,7 @@ func (tu *thresholdUpdater) Update(status error) {
 
 // NewThresholdStatusUpdater returns a new thresholdUpdater
 func NewThresholdStatusUpdater(t int) Updater {
-	return &thresholdUpdater{threshold: t}
+	return &thresholdUpdater{count: t, status: initialStatus, threshold: t}
 }
 
 // PeriodicChecker wraps an updater to provide a periodic checker
