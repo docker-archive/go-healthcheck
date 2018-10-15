@@ -105,3 +105,34 @@ func TestHealthHandler(t *testing.T) {
 	updater.Update(nil)
 	checkUp(t, "when server is back up") // now we should be back up.
 }
+
+// TestRegistryHandler tests that an individual registry can be registered as an
+// http.Handler
+func TestRegistryHandler(t *testing.T) {
+	reg := NewRegistry()
+	var _ http.Handler = reg
+
+	r := httptest.NewRequest("GET", "http://unused/foo", nil)
+	w := httptest.NewRecorder()
+
+	reg.ServeHTTP(w, r)
+
+	if w.Code != 200 {
+		t.Error("did not return 200 with no failing checks")
+	}
+
+	reg.RegisterFunc("foo", func() error { return fmt.Errorf("error") })
+	w = httptest.NewRecorder()
+	reg.ServeHTTP(w, r)
+
+	if w.Code != 503 {
+		t.Errorf("Response code was %d, not 503", w.Code)
+	}
+
+	r = httptest.NewRequest("PUT", "https://foo/bar", nil)
+	w = httptest.NewRecorder()
+	reg.ServeHTTP(w, r)
+	if w.Code != 404 {
+		t.Errorf("Response code was %d, not 404 for non-GET verb.", w.Code)
+	}
+}
