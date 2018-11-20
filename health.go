@@ -194,6 +194,24 @@ func (registry *Registry) Register(name string, check Checker) {
 	registry.registeredChecks[name] = check
 }
 
+// ServeHTTP implements http.Handler
+func (registry *Registry) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		checks := registry.CheckStatus()
+		status := http.StatusOK
+
+		// If there is an error, return 503
+		if len(checks) != 0 {
+			status = http.StatusServiceUnavailable
+		}
+
+		statusResponse(w, r, status, checks)
+		return
+	}
+
+	http.NotFound(w, r)
+}
+
 // Register associates the checker with the provided name in the default
 // registry.
 func Register(name string, check Checker) {
@@ -240,19 +258,7 @@ func RegisterPeriodicThresholdFunc(name string, period time.Duration, threshold 
 // and their corresponding status.
 // Returns 503 if any Error status exists, 200 otherwise
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		checks := CheckStatus()
-		status := http.StatusOK
-
-		// If there is an error, return 503
-		if len(checks) != 0 {
-			status = http.StatusServiceUnavailable
-		}
-
-		statusResponse(w, r, status, checks)
-	} else {
-		http.NotFound(w, r)
-	}
+	DefaultRegistry.ServeHTTP(w, r)
 }
 
 // Handler returns a handler that will return 503 response code if the health
