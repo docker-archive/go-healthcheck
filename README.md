@@ -39,13 +39,13 @@ A trivial example of a check that runs every 5 seconds and shuts down our server
    return nil
  }
 
- health.RegisterPeriodicFunc("minute_even", currentMinuteEvenCheck, time.Second*5)
+ health.RegisterPeriodicFunc("minute_even", time.Second*5, currentMinuteEvenCheck)
 ```
 
 Alternatively, you can also make use of `RegisterPeriodicThresholdFunc` to implement the exact same check, but add a threshold of failures after which the check will be unhealthy. This is particularly useful for flaky Checks, ensuring some stability of the service when handling them.
 
 ```go
-health.RegisterPeriodicThresholdFunc("minute_even", currentMinuteEvenCheck, time.Second*5, 4)
+health.RegisterPeriodicThresholdFunc("minute_even" time.Second*5, 4, currentMinuteEvenCheck)
 ```
 
 The lowest-level way to interact with the health package is calling `Register` directly. Register allows you to pass in an arbitrary string and something that implements `Checker` and runs your check. If your method returns an error with nil, it is considered a healthy check, otherwise it will make the health check endpoint `/debug/health` start returning a 500 and list the specific check that failed.
